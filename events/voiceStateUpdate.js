@@ -4,17 +4,6 @@ module.exports = {
   name: "voiceStateUpdate",
   async execute(client, oldState, newState) {
     if (!oldState.guild && !newState.guild) return;
-    
-    if (oldState.channelId){
-      if (!oldState.guild.members.me.voice.channel) return;
-      if (oldState.channel.id !== oldState.guild.members.me.voice.channel.id) return;
-      if (oldState.channel.members.size - 1) return;
-
-      setInterval(() => {
-        const c = getVoiceConnection(oldState.guild.id)
-          if (c) c.destroy()
-      }, 1000 * 60 * 10);
-    }
 
     if (newState.channelId){
       if (client.db.get(`manual_${newState.guild.id}`) === true) return;
