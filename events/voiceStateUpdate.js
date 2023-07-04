@@ -3,7 +3,9 @@ const { getVoiceConnection, joinVoiceChannel, createAudioPlayer, createAudioReso
 module.exports = {
   name: "voiceStateUpdate",
   async execute(client, oldState, newState) {
-    if (oldState){
+    if (!oldState.guild && !newState.guild) return;
+    
+    if (oldState.channelId){
       if (!oldState.guild.members.me.voice.channel) return;
       if (oldState.channel.id !== oldState.guild.members.me.voice.channel.id) return;
       if (oldState.channel.members.size - 1) return;
@@ -14,12 +16,13 @@ module.exports = {
       }, 1000 * 60 * 10);
     }
 
-    if (newState){
+    if (newState.channelId){
       if (client.db.get(`manual_${newState.guild.id}`) === true) return;
-      
+
       const channel = await newState.guild.channels.fetch(client.db.get(`autochannel_${newState.guild.id}`)).catch(() => false)
       if (!channel) return;
-      if (newState.channel.id !== channel.id) return;
+
+      if (newState.channelId !== channel.id) return;
 
       const VoiceConnection = joinVoiceChannel({
         channelId: channel.id,
